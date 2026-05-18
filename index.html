@@ -1,814 +1,126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CMS Image Tool — Compress, Resize, Crop, Rotate</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      margin: 24px;
-      background: #fafafa;
-      color: #222;
-    }
-    h1 { margin: 0 0 8px; }
-    p.small { color: #666; font-size: 13px; margin-top: 0; }
-    .section {
-      background: #fff;
-      border: 1px solid #e7e7e7;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.03);
-    }
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: end;
-    }
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 14px;
-      min-width: 150px;
-    }
-    input, select, button {
-      padding: 10px 12px;
-      font-size: 14px;
-      border: 1px solid #cfcfcf;
-      border-radius: 10px;
-      background: #fff;
-    }
-    button {
-      cursor: pointer;
-      font-weight: 600;
-    }
-    button:hover { background: #f4f4f4; }
-    #drop {
-      border: 2px dashed #bbb;
-      padding: 28px;
-      border-radius: 14px;
-      text-align: center;
-      transition: .15s ease;
-      background: #fcfcfc;
-    }
-    #drop.active {
-      border-color: #333;
-      background: #f2f2f2;
-    }
-    #log {
-      white-space: pre-wrap;
-      background: #111;
-      color: #d9f9d9;
-      padding: 14px;
-      border-radius: 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      min-height: 120px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 980px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-    .panel-title {
-      margin: 0 0 12px;
-      font-size: 16px;
-      font-weight: 700;
-    }
-    .preview-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .canvas-wrap {
-      width: 100%;
-      overflow: auto;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background:
-        linear-gradient(45deg, #f1f1f1 25%, transparent 25%),
-        linear-gradient(-45deg, #f1f1f1 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #f1f1f1 75%),
-        linear-gradient(-45deg, transparent 75%, #f1f1f1 75%);
-      background-size: 20px 20px;
-      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-      min-height: 420px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-    }
-    canvas#previewCanvas {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      background: transparent;
-      border-radius: 10px;
-      box-shadow: 0 1px 8px rgba(0,0,0,.08);
-    }
-    .file-list {
-      max-height: 180px;
-      overflow: auto;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 8px;
-      background: #fff;
-    }
-    .file-item {
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      font-size: 13px;
-    }
-    .file-item:hover { background: #f5f5f5; }
-    .file-item.active { background: #eaf3ff; }
-    .muted { color: #666; font-size: 12px; }
-    .pill {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #f1f1f1;
-      font-size: 12px;
-      color: #555;
-    }
-    .inline {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .danger { color: #b42318; }
-    .hint { color: #555; font-size: 12px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canvas Editor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#16213e;border-bottom:1px solid #0f3460}
+header h1{font-size:16px;font-weight:600;margin-right:auto}
+.toolbar{display:flex;gap:6px}
+.toolbar button,.toolbar label{padding:6px 12px;border:none;border-radius:6px;background:#0f3460;color:#fff;font-size:13px;cursor:pointer;transition:background .15s}
+.toolbar button:hover,.toolbar label:hover{background:#e94560}
+.toolbar input[type=file]{display:none}
+.toolbar select{padding:6px 8px;border-radius:6px;border:none;background:#0f3460;color:#fff;font-size:13px}
+main{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px}
+.canvas-wrap{background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4);position:relative}
+#export-menu{position:absolute;top:46px;right:16px;background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:8px;display:none;z-index:10;flex-direction:column;gap:4px}
+#export-menu.show{display:flex}
+#export-menu button{text-align:left}
+.size-inputs{display:flex;align-items:center;gap:6px}
+.size-inputs input{width:60px;padding:4px 6px;border-radius:4px;border:1px solid #0f3460;background:#1a1a2e;color:#fff;font-size:13px;text-align:center}
+.size-inputs span{font-size:12px;opacity:.7}
+</style>
 </head>
 <body>
-  <h1>CMS Image Tool</h1>
-  <p class="small">
-    Browser-only tool for <b>compressing, resizing, upscaling, cropping, rotating, and flipping</b> images.
-    No upload to server. Good for GitHub Pages.
-  </p>
-
-  <div class="section">
-    <div class="row">
-      <button id="pick">Pick files</button>
-      <input id="file" type="file" accept="image/*" multiple hidden />
-      <button id="clear">Clear All</button>
-      <button id="removeSelected">Remove Selected</button>
-      <span class="pill" id="fileCount">0 files</span>
-    </div>
-    <div id="drop" style="margin-top:12px;">Drop images here</div>
-  </div>
-
-  <div class="grid">
-    <div class="section">
-      <h3 class="panel-title">Files</h3>
-      <div class="file-list" id="fileList">
-        <div class="muted">No files yet.</div>
-      </div>
-
-      <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
-
-      <h3 class="panel-title">Output</h3>
-      <div class="row">
-        <label>Output format
-          <select id="format">
-            <option value="image/webp">WebP</option>
-            <option value="image/jpeg">JPEG</option>
-            <option value="image/png">PNG</option>
-          </select>
-        </label>
-
-        <label>Target max size (MB)
-          <input id="targetMB" type="number" value="2" step="0.1" min="0.1" />
-        </label>
-
-        <label>Start quality (0–1)
-          <input id="qStart" type="number" value="0.82" step="0.01" min="0.05" max="1" />
-        </label>
-      </div>
-
-      <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
-
-      <h3 class="panel-title">Resize / Upscale</h3>
-      <div class="row">
-        <label>Resize mode
-          <select id="resizeMode">
-            <option value="fit">Fit within max width/height</option>
-            <option value="exact">Exact width/height</option>
-            <option value="scale">Scale multiplier</option>
-            <option value="original">Keep original size</option>
-          </select>
-        </label>
-
-        <label>Max width
-          <input id="maxW" type="number" value="1920" min="1" />
-        </label>
-
-        <label>Max height
-          <input id="maxH" type="number" value="1080" min="1" />
-        </label>
-
-        <label>Exact width
-          <input id="exactW" type="number" value="1920" min="1" />
-        </label>
-
-        <label>Exact height
-          <input id="exactH" type="number" value="1080" min="1" />
-        </label>
-
-        <label>Scale multiplier
-          <select id="scaleFactor">
-            <option value="0.5">0.5x</option>
-            <option value="1">1x</option>
-            <option value="2">2x</option>
-            <option value="3">3x</option>
-            <option value="4">4x</option>
-          </select>
-        </label>
-
-        <label>
-          <span>Keep aspect ratio</span>
-          <input id="keepAspect" type="checkbox" checked />
-        </label>
-
-        <label>Smoothing
-          <select id="smoothing">
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </label>
-      </div>
-      <p class="hint">
-        Upscale here means enlarging dimensions with browser interpolation. It does not recreate lost detail like AI upscalers.
-      </p>
-
-      <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
-
-      <h3 class="panel-title">Crop</h3>
-      <div class="row">
-        <label>Crop mode
-          <select id="cropMode">
-            <option value="none">No crop</option>
-            <option value="center">Center crop</option>
-          </select>
-        </label>
-
-        <label>Aspect ratio preset
-          <select id="cropPreset">
-            <option value="free">Free ratio</option>
-            <option value="1:1">1:1</option>
-            <option value="4:3">4:3</option>
-            <option value="3:4">3:4</option>
-            <option value="16:9">16:9</option>
-            <option value="9:16">9:16</option>
-            <option value="21:9">21:9</option>
-            <option value="1024:505">1024:505</option>
-            <option value="800:888">800:888</option>
-            <option value="1600:900">1600:900</option>
-            <option value="1920:1080">1920:1080</option>
-          </select>
-        </label>
-
-        <label>Free ratio width
-          <input id="cropFreeW" type="number" value="16" min="1" />
-        </label>
-
-        <label>Free ratio height
-          <input id="cropFreeH" type="number" value="9" min="1" />
-        </label>
-      </div>
-      <p class="hint">
-        Crop is currently center-crop. “Free ratio” means you choose your own aspect ratio, for example 5:4 or 7:3.
-      </p>
-
-      <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
-
-      <h3 class="panel-title">Rotate / Flip</h3>
-      <div class="row">
-        <label>Rotate
-          <select id="rotate">
-            <option value="0">0°</option>
-            <option value="90">90°</option>
-            <option value="180">180°</option>
-            <option value="270">270°</option>
-          </select>
-        </label>
-
-        <label>
-          <span>Flip horizontal</span>
-          <input id="flipH" type="checkbox" />
-        </label>
-
-        <label>
-          <span>Flip vertical</span>
-          <input id="flipV" type="checkbox" />
-        </label>
-      </div>
-
-      <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
-
-      <div class="row">
-        <button id="previewBtn">Refresh Preview</button>
-        <button id="process">Process & Download</button>
-      </div>
-    </div>
-
-    <div class="section preview-wrap">
-      <h3 class="panel-title">Preview</h3>
-      <div class="inline">
-        <span class="pill" id="previewInfo">No preview</span>
-      </div>
-      <div class="canvas-wrap">
-        <canvas id="previewCanvas"></canvas>
-      </div>
-      <div class="hint">
-        Preview uses the selected file only. Batch processing will apply the same settings to all files.
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h3 class="panel-title">Log</h3>
-    <div id="log">No files yet.</div>
-  </div>
-
+<header>
+<h1>Canvas Editor</h1>
+<div class="size-inputs">
+<input id="cw" type="number" value="1080" min="100" max="4096">
+<span>×</span>
+<input id="ch" type="number" value="1080" min="100" max="4096">
+<button onclick="resizeCanvas()" style="padding:4px 8px;border:none;border-radius:4px;background:#0f3460;color:#fff;cursor:pointer;font-size:12px">Apply</button>
+</div>
+<div class="toolbar">
+<label>+ Image<input type="file" id="imgInput" accept="image/*" multiple></label>
+<button onclick="addText()">+ Text</button>
+<button onclick="addRect()">+ Rect</button>
+<button onclick="addCircle()">+ Circle</button>
+<button onclick="deleteSelected()">Delete</button>
+<button onclick="bringForward()">↑</button>
+<button onclick="sendBackward()">↓</button>
+<button onclick="toggleExport()">Export ▾</button>
+</div>
+<div id="export-menu">
+<button onclick="exportWebP()">Export WebP</button>
+<button onclick="exportSVG()">Export SVG</button>
+</div>
+</header>
+<main>
+<div class="canvas-wrap">
+<canvas id="c"></canvas>
+</div>
+</main>
 <script>
-const $ = (id) => document.getElementById(id);
+const canvas = new fabric.Canvas('c',{width:1080,height:1080,backgroundColor:'#ffffff',preserveObjectStacking:true});
 
-let files = [];
-let selectedIndex = -1;
-let previewSourceImage = null;
+function resizeCanvas(){
+  const w=Math.min(4096,Math.max(100,+document.getElementById('cw').value||1080));
+  const h=Math.min(4096,Math.max(100,+document.getElementById('ch').value||1080));
+  canvas.setDimensions({width:w,height:h});
+  canvas.renderAll();
+}
 
-$("pick").onclick = () => $("file").click();
-$("file").onchange = (e) => addFiles([...e.target.files].filter(f => f.type.startsWith("image/")));
-
-$("drop").addEventListener("dragover", (e) => {
-  e.preventDefault();
-  $("drop").classList.add("active");
-});
-$("drop").addEventListener("dragleave", () => {
-  $("drop").classList.remove("active");
-});
-$("drop").addEventListener("drop", (e) => {
-  e.preventDefault();
-  $("drop").classList.remove("active");
-  addFiles([...e.dataTransfer.files].filter(f => f.type.startsWith("image/")));
-});
-
-$("clear").onclick = () => {
-  files = [];
-  selectedIndex = -1;
-  previewSourceImage = null;
-  renderFileList();
-  clearPreview();
-  log("Cleared all files.");
-};
-
-$("removeSelected").onclick = () => {
-  if (selectedIndex < 0 || selectedIndex >= files.length) {
-    return log("No selected file to remove.");
-  }
-  const removed = files[selectedIndex].name;
-  files.splice(selectedIndex, 1);
-  if (!files.length) {
-    selectedIndex = -1;
-    previewSourceImage = null;
-    clearPreview();
-  } else {
-    selectedIndex = Math.min(selectedIndex, files.length - 1);
-    loadPreviewFromSelected();
-  }
-  renderFileList();
-  log(`Removed: ${removed}`);
-};
-
-$("previewBtn").onclick = async () => {
-  if (selectedIndex < 0 || !files[selectedIndex]) return log("Select a file first.");
-  await loadPreviewFromSelected();
-};
-
-[
-  "resizeMode","maxW","maxH","exactW","exactH","scaleFactor","keepAspect",
-  "cropMode","cropPreset","cropFreeW","cropFreeH",
-  "rotate","flipH","flipV","smoothing","format"
-].forEach(id => {
-  $(id).addEventListener("change", async () => {
-    if (selectedIndex >= 0 && files[selectedIndex]) {
-      await loadPreviewFromSelected();
-    }
+document.getElementById('imgInput').addEventListener('change',e=>{
+  [...e.target.files].forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      fabric.Image.fromURL(ev.target.result,img=>{
+        const scale=Math.min((canvas.width*.8)/img.width,(canvas.height*.8)/img.height,1);
+        img.set({scaleX:scale,scaleY:scale,left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center'});
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.renderAll();
+      });
+    };
+    reader.readAsDataURL(file);
   });
+  e.target.value='';
 });
 
-$("process").onclick = async () => {
-  if (!files.length) return log("No images to process.");
+function addText(){
+  const t=new fabric.IText('Double-click to edit',{left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center',fontSize:48,fontFamily:'system-ui',fill:'#333333'});
+  canvas.add(t);canvas.setActiveObject(t);canvas.renderAll();
+}
+function addRect(){
+  const r=new fabric.Rect({left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center',width:200,height:150,fill:'#e94560',rx:8,ry:8});
+  canvas.add(r);canvas.setActiveObject(r);canvas.renderAll();
+}
+function addCircle(){
+  const c2=new fabric.Circle({left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center',radius:80,fill:'#0f3460'});
+  canvas.add(c2);canvas.setActiveObject(c2);canvas.renderAll();
+}
+function deleteSelected(){
+  const sel=canvas.getActiveObjects();
+  sel.forEach(o=>canvas.remove(o));
+  canvas.discardActiveObject();canvas.renderAll();
+}
+function bringForward(){const o=canvas.getActiveObject();if(o){canvas.bringForward(o);canvas.renderAll();}}
+function sendBackward(){const o=canvas.getActiveObject();if(o){canvas.sendBackwards(o);canvas.renderAll();}}
 
-  const settings = getSettings();
-  log(`Processing ${files.length} image(s)...`);
+function toggleExport(){document.getElementById('export-menu').classList.toggle('show');}
+document.addEventListener('click',e=>{if(!e.target.closest('#export-menu')&&!e.target.closest('[onclick*=toggleExport]'))document.getElementById('export-menu').classList.remove('show');});
 
-  for (const f of files) {
-    try {
-      const out = await processImageToTarget(f, settings);
-      const ext = settings.format.includes("webp")
-        ? "webp"
-        : settings.format.includes("jpeg")
-        ? "jpg"
-        : "png";
-
-      const base = f.name.replace(/\.[^.]+$/, "");
-      const outName = `${base}_cms.${ext}`;
-
-      downloadBlob(out.blob, outName);
-
-      log(
-        `✅ ${f.name} → ${outName} | ` +
-        `${Math.round(f.size / 1024)}KB → ${Math.round(out.blob.size / 1024)}KB | ` +
-        `q=${out.quality.toFixed(2)} | ${out.width}x${out.height}`
-      );
-    } catch (err) {
-      log(`❌ ${f.name} failed: ${err.message || err}`);
-    }
-  }
-
-  log("Done.");
-};
-
-function log(msg) {
-  $("log").textContent =
-    ($("log").textContent === "No files yet." ? "" : $("log").textContent + "\n") + msg;
+function exportWebP(){
+  const url=canvas.toDataURL({format:'webp',quality:0.92,multiplier:1});
+  const a=document.createElement('a');a.href=url;a.download='design.webp';a.click();
+  document.getElementById('export-menu').classList.remove('show');
+}
+function exportSVG(){
+  const svg=canvas.toSVG();
+  const blob=new Blob([svg],{type:'image/svg+xml'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='design.svg';a.click();
+  document.getElementById('export-menu').classList.remove('show');
 }
 
-function addFiles(newOnes) {
-  if (!newOnes.length) return;
-  files.push(...newOnes);
-  if (selectedIndex === -1 && files.length > 0) selectedIndex = 0;
-  renderFileList();
-  log(`Added ${newOnes.length} file(s). Total: ${files.length}`);
-  loadPreviewFromSelected();
-}
-
-function renderFileList() {
-  $("fileCount").textContent = `${files.length} file${files.length === 1 ? "" : "s"}`;
-  const wrap = $("fileList");
-  wrap.innerHTML = "";
-
-  if (!files.length) {
-    wrap.innerHTML = `<div class="muted">No files yet.</div>`;
-    return;
-  }
-
-  files.forEach((f, i) => {
-    const div = document.createElement("div");
-    div.className = "file-item" + (i === selectedIndex ? " active" : "");
-    div.innerHTML = `
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(f.name)}</span>
-      <span class="muted">${Math.round(f.size / 1024)} KB</span>
-    `;
-    div.onclick = async () => {
-      selectedIndex = i;
-      renderFileList();
-      await loadPreviewFromSelected();
-    };
-    wrap.appendChild(div);
-  });
-}
-
-async function loadPreviewFromSelected() {
-  if (selectedIndex < 0 || !files[selectedIndex]) {
-    clearPreview();
-    return;
-  }
-
-  try {
-    const file = files[selectedIndex];
-    previewSourceImage = await fileToImage(file);
-    const settings = getSettings();
-    const preview = await renderProcessedCanvas(previewSourceImage, settings);
-    $("previewCanvas").width = preview.canvas.width;
-    $("previewCanvas").height = preview.canvas.height;
-    const pctx = $("previewCanvas").getContext("2d");
-    pctx.clearRect(0, 0, $("previewCanvas").width, $("previewCanvas").height);
-    pctx.drawImage(preview.canvas, 0, 0);
-
-    $("previewInfo").textContent =
-      `${file.name} | ${preview.meta.finalWidth}x${preview.meta.finalHeight}`;
-  } catch (err) {
-    log(`Preview failed: ${err.message || err}`);
-  }
-}
-
-function clearPreview() {
-  const c = $("previewCanvas");
-  c.width = 1;
-  c.height = 1;
-  const ctx = c.getContext("2d");
-  ctx.clearRect(0, 0, 1, 1);
-  $("previewInfo").textContent = "No preview";
-}
-
-function getSettings() {
-  return {
-    format: $("format").value,
-    targetBytes: Math.floor(parseFloat($("targetMB").value) * 1024 * 1024),
-    qStart: clamp(parseFloat($("qStart").value), 0.05, 1),
-
-    resizeMode: $("resizeMode").value,
-    maxW: intVal("maxW", 1920),
-    maxH: intVal("maxH", 1080),
-    exactW: intVal("exactW", 1920),
-    exactH: intVal("exactH", 1080),
-    scaleFactor: Math.max(0.05, parseFloat($("scaleFactor").value) || 1),
-    keepAspect: $("keepAspect").checked,
-    smoothing: $("smoothing").value,
-
-    cropMode: $("cropMode").value,
-    cropPreset: $("cropPreset").value,
-    cropFreeW: intVal("cropFreeW", 16),
-    cropFreeH: intVal("cropFreeH", 9),
-
-    rotate: parseInt($("rotate").value, 10) || 0,
-    flipH: $("flipH").checked,
-    flipV: $("flipV").checked
-  };
-}
-
-function intVal(id, fallback) {
-  const n = parseInt($(id).value, 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
-}
-
-function clamp(v, min, max) {
-  return Math.min(max, Math.max(min, v));
-}
-
-function downloadBlob(blob, filename) {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => {
-    URL.revokeObjectURL(a.href);
-    a.remove();
-  }, 1000);
-}
-
-async function processImageToTarget(file, settings) {
-  const img = await fileToImage(file);
-  const rendered = await renderProcessedCanvas(img, settings);
-  const canvas = rendered.canvas;
-
-  if (settings.format === "image/png") {
-    const blob = await canvasToBlob(canvas, settings.format, 1);
-    if (blob.size > settings.targetBytes) {
-      throw new Error("PNG too large for target size. Try WebP or JPEG, or reduce dimensions.");
-    }
-    return {
-      blob,
-      quality: 1,
-      width: canvas.width,
-      height: canvas.height
-    };
-  }
-
-  let best = null;
-
-  let initialBlob = await canvasToBlob(canvas, settings.format, settings.qStart);
-  if (initialBlob.size <= settings.targetBytes) {
-    best = {
-      blob: initialBlob,
-      quality: settings.qStart,
-      width: canvas.width,
-      height: canvas.height
-    };
-
-    let q = Math.min(0.95, settings.qStart + 0.05);
-    while (q <= 0.95) {
-      const b = await canvasToBlob(canvas, settings.format, q);
-      if (b.size <= settings.targetBytes) {
-        best = {
-          blob: b,
-          quality: q,
-          width: canvas.width,
-          height: canvas.height
-        };
-        q += 0.05;
-      } else {
-        break;
-      }
-    }
-    return best;
-  }
-
-  let lo = 0.05;
-  let hi = settings.qStart;
-
-  for (let i = 0; i < 12; i++) {
-    const mid = (lo + hi) / 2;
-    const b = await canvasToBlob(canvas, settings.format, mid);
-    if (b.size <= settings.targetBytes) {
-      best = {
-        blob: b,
-        quality: mid,
-        width: canvas.width,
-        height: canvas.height
-      };
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-
-  if (!best) {
-    throw new Error("Could not reach target size. Reduce dimensions or use WebP/JPEG.");
-  }
-
-  return best;
-}
-
-async function renderProcessedCanvas(img, settings) {
-  const oriented = applyRotateFlipToCanvas(img, settings);
-  const cropped = applyCropToCanvas(oriented, settings);
-  const resized = applyResizeToCanvas(cropped, settings);
-
-  return {
-    canvas: resized,
-    meta: {
-      finalWidth: resized.width,
-      finalHeight: resized.height
-    }
-  };
-}
-
-function applyRotateFlipToCanvas(imgOrCanvas, settings) {
-  const srcW = imgOrCanvas.width;
-  const srcH = imgOrCanvas.height;
-  const rotate = ((settings.rotate % 360) + 360) % 360;
-  const swap = rotate === 90 || rotate === 270;
-
-  const outW = swap ? srcH : srcW;
-  const outH = swap ? srcW : srcH;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = outW;
-  canvas.height = outH;
-
-  const ctx = canvas.getContext("2d");
-  ctx.save();
-
-  ctx.translate(outW / 2, outH / 2);
-  ctx.rotate((rotate * Math.PI) / 180);
-  ctx.scale(settings.flipH ? -1 : 1, settings.flipV ? -1 : 1);
-
-  ctx.drawImage(imgOrCanvas, -srcW / 2, -srcH / 2);
-  ctx.restore();
-
-  return canvas;
-}
-
-function applyCropToCanvas(srcCanvas, settings) {
-  if (settings.cropMode === "none") return srcCanvas;
-
-  const ratio = getCropRatio(settings);
-  if (!ratio) return srcCanvas; // free ratio invalid -> no crop
-
-  const srcW = srcCanvas.width;
-  const srcH = srcCanvas.height;
-  const srcRatio = srcW / srcH;
-
-  let cropW, cropH, sx, sy;
-
-  if (srcRatio > ratio) {
-    cropH = srcH;
-    cropW = Math.round(cropH * ratio);
-  } else {
-    cropW = srcW;
-    cropH = Math.round(cropW / ratio);
-  }
-
-  sx = Math.max(0, Math.round((srcW - cropW) / 2));
-  sy = Math.max(0, Math.round((srcH - cropH) / 2));
-
-  const out = document.createElement("canvas");
-  out.width = cropW;
-  out.height = cropH;
-  const ctx = out.getContext("2d");
-  ctx.drawImage(srcCanvas, sx, sy, cropW, cropH, 0, 0, cropW, cropH);
-
-  return out;
-}
-
-function getCropRatio(settings) {
-  if (settings.cropPreset === "free") {
-    if (settings.cropFreeW > 0 && settings.cropFreeH > 0) {
-      return settings.cropFreeW / settings.cropFreeH;
-    }
-    return null;
-  }
-
-  const parts = settings.cropPreset.split(":").map(Number);
-  if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
-    return parts[0] / parts[1];
-  }
-  return null;
-}
-
-function applyResizeToCanvas(srcCanvas, settings) {
-  const srcW = srcCanvas.width;
-  const srcH = srcCanvas.height;
-
-  let outW = srcW;
-  let outH = srcH;
-
-  if (settings.resizeMode === "original") {
-    outW = srcW;
-    outH = srcH;
-  }
-
-  else if (settings.resizeMode === "fit") {
-    const scale = Math.min(1, settings.maxW / srcW, settings.maxH / srcH);
-    outW = Math.max(1, Math.round(srcW * scale));
-    outH = Math.max(1, Math.round(srcH * scale));
-  }
-
-  else if (settings.resizeMode === "exact") {
-    if (settings.keepAspect) {
-      const ratio = srcW / srcH;
-      const targetRatio = settings.exactW / settings.exactH;
-      if (targetRatio > ratio) {
-        outH = settings.exactH;
-        outW = Math.round(outH * ratio);
-      } else {
-        outW = settings.exactW;
-        outH = Math.round(outW / ratio);
-      }
-    } else {
-      outW = settings.exactW;
-      outH = settings.exactH;
-    }
-  }
-
-  else if (settings.resizeMode === "scale") {
-    outW = Math.max(1, Math.round(srcW * settings.scaleFactor));
-    outH = Math.max(1, Math.round(srcH * settings.scaleFactor));
-  }
-
-  const out = document.createElement("canvas");
-  out.width = outW;
-  out.height = outH;
-  const ctx = out.getContext("2d");
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = settings.smoothing;
-  ctx.drawImage(srcCanvas, 0, 0, outW, outH);
-
-  return out;
-}
-
-function canvasToBlob(canvas, type, quality) {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => blob ? resolve(blob) : reject(new Error("toBlob failed")),
-      type,
-      quality
-    );
-  });
-}
-
-function fileToImage(file) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Image load error"));
-    };
-    img.src = url;
-  });
-}
-
-function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[m]));
-}
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='Delete'||e.key==='Backspace')deleteSelected();
+});
 </script>
 </body>
 </html>
