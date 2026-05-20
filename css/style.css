@@ -1,5 +1,5 @@
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#fff;height:100vh;display:grid;grid-template-rows:auto 1fr;grid-template-columns:1fr 280px;grid-template-areas:"header header" "main props";overflow:hidden}
+body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#fff;height:100vh;display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:1fr 280px;grid-template-areas:"header header" "main props" "footer footer";overflow:hidden}
 header{grid-area:header;display:flex;align-items:center;gap:12px;padding:10px 16px;background:#16213e;border-bottom:1px solid #0f3460;flex-wrap:wrap;position:relative;z-index:5}
 header h1{font-size:16px;font-weight:600;margin-right:8px}
 main{grid-area:main;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px;background:radial-gradient(circle at center,#22264a 0,#1a1a2e 70%)}
@@ -87,3 +87,17 @@ button.danger:hover{background:#e94560}
 .tpl-card .del{position:absolute;top:4px;right:4px;width:20px;height:20px;padding:0;font-size:12px;background:rgba(0,0,0,.65);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
 .tpl-card:hover .del{opacity:1}
 .tpl-card .del:hover{background:#e94560}
+
+/* Pages footer */
+footer{grid-area:footer;background:#16213e;border-top:1px solid #0f3460;padding:8px 16px;display:flex;align-items:center;gap:16px;overflow-x:auto}
+.page-tabs{display:flex;gap:8px;align-items:center;flex:1;overflow-x:auto;padding-bottom:2px}
+.page-tab{position:relative;background:#1a1a2e;border:1px solid #0f3460;border-radius:6px;padding:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-width:64px;transition:border-color .15s,transform .1s}
+.page-tab:hover{border-color:#e94560}
+.page-tab.active{border-color:#e94560;background:#22264a}
+.page-tab.dragover{border-color:#7be07b;border-style:dashed}
+.page-thumb{width:48px;min-height:32px;background:#0f3460;background-size:cover;background-position:center;border-radius:3px}
+.page-num{font-size:10px;opacity:.7;margin-top:2px}
+.page-tab .del{position:absolute;top:-6px;right:-6px;width:18px;height:18px;padding:0;font-size:11px;background:#e94560;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.page-tab:hover .del{opacity:1}
+.page-add,.page-dup{width:36px;height:36px;padding:0;font-size:16px;border-radius:6px;background:#0f3460;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.page-info{font-size:11px;opacity:.6;white-space:nowrap}

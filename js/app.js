@@ -1,4 +1,4 @@
-// Wires DOM ↔ Editor/Persist/History/Exporter/Props. Loads last project on boot.
+// Wires DOM ↔ Editor/Persist/History/Pages/Brand/Templates/Exporter/Props.
 (() => {
   const $ = id => document.getElementById(id);
 
@@ -32,8 +32,8 @@
 
   function save() {
     const meta = getMeta();
-    const json = Editor.canvas.toJSON();
-    const id = Persist.save(meta, json);
+    const data = Pages.serialize();
+    const id = Persist.save(meta, data);
     state.id = id;
     state.name = meta.name;
     state.dirty = false;
@@ -47,10 +47,26 @@
     state.id = id;
     state.name = p.meta.name;
     $('projectName').value = p.meta.name;
-    $('cw').value = p.meta.w;
-    $('ch').value = p.meta.h;
-    Editor.resize(p.meta.w, p.meta.h);
-    await Editor.loadJSON(p.canvasJSON);
+
+    // Migration: old single-canvas projects -> wrap into Pages
+    let pagesData;
+    if (p.canvasJSON?.pages) {
+      pagesData = p.canvasJSON;
+    } else {
+      // Legacy: canvasJSON is raw fabric JSON
+      pagesData = {
+        pages: [{
+          id: 'p-legacy',
+          w: p.meta.w,
+          h: p.meta.h,
+          canvasJSON: p.canvasJSON,
+          thumbnail: null
+        }],
+        active: 0
+      };
+    }
+    await Pages.load(pagesData);
+    syncSizeInputs();
     state.dirty = false;
     setStatus('loaded', 'ok');
     setTimeout(() => setStatus(''), 1200);
@@ -62,11 +78,18 @@
     state.id = null;
     state.name = 'Untitled';
     $('projectName').value = '';
+    Pages.reset();
     Editor.clear();
     History.reset();
+    syncSizeInputs();
     state.dirty = false;
     setStatus('');
     localStorage.removeItem('canvas:lastOpen');
+  }
+
+  function syncSizeInputs() {
+    $('cw').value = Editor.canvas.getWidth();
+    $('ch').value = Editor.canvas.getHeight();
   }
 
   function renderProjectList() {
@@ -148,6 +171,7 @@
       if (w >= 100 && h >= 100) {
         Editor.resize(w, h);
         markDirty();
+        PagesUI.render();
       }
     };
 
@@ -158,6 +182,7 @@
       $('ch').value = h;
       Editor.resize(w, h);
       markDirty();
+      PagesUI.render();
       e.target.value = '';
     };
 
@@ -183,17 +208,37 @@
       r.onload = async ev => {
         try {
           const obj = JSON.parse(ev.target.result);
-          // Accept either canvas JSON directly or {meta, canvasJSON}
-          const cjson = obj.canvasJSON || obj;
           const meta = obj.meta || {};
-          if (meta.w && meta.h) {
-            $('cw').value = meta.w;
-            $('ch').value = meta.h;
-            Editor.resize(meta.w, meta.h);
-          }
           if (meta.name) $('projectName').value = meta.name;
           state.id = null;
-          await Editor.loadJSON(cjson);
+          // Accept three shapes:
+          //   {meta, canvasJSON: {pages, active}}  (full project export)
+          //   {meta, canvasJSON: <fabric JSON>}    (legacy)
+          //   <fabric JSON>                        (raw)
+          if (obj.canvasJSON?.pages) {
+            await Pages.load(obj.canvasJSON);
+          } else if (obj.canvasJSON) {
+            await Pages.load({
+              pages: [{
+                id: 'p-imp',
+                w: meta.w || Editor.canvas.getWidth(),
+                h: meta.h || Editor.canvas.getHeight(),
+                canvasJSON: obj.canvasJSON
+              }],
+              active: 0
+            });
+          } else {
+            await Pages.load({
+              pages: [{
+                id: 'p-imp',
+                w: meta.w || Editor.canvas.getWidth(),
+                h: meta.h || Editor.canvas.getHeight(),
+                canvasJSON: obj
+              }],
+              active: 0
+            });
+          }
+          syncSizeInputs();
           markDirty();
           toggleMenu('open-menu');
         } catch (err) {
@@ -205,8 +250,26 @@
     };
 
     document.querySelectorAll('#export-menu button').forEach(b => {
-      b.onclick = () => {
-        Exporter.run(Editor.canvas, b.dataset.export, $('projectName').value || 'design');
+      b.onclick = async () => {
+        const name = $('projectName').value || 'design';
+        if (b.dataset.export === 'pdf') {
+          Pages.snapshotCurrent();
+          await PdfExporter.exportPDF(Pages.pages, name);
+        } else if (b.dataset.export === 'json') {
+          // Export full project including pages
+          const blob = new Blob([JSON.stringify({
+            meta: getMeta(),
+            canvasJSON: Pages.serialize()
+          }, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${(name || 'design').replace(/[^\w-]+/g, '_')}.json`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } else {
+          Exporter.run(Editor.canvas, b.dataset.export, name);
+        }
         toggleMenu('export-menu');
       };
     });
@@ -217,7 +280,7 @@
     });
 
     Editor.canvas.on('object:added', markDirty);
-    Editor.canvas.on('object:modified', markDirty);
+    Editor.canvas.on('object:modified', () => { markDirty(); PagesUI.render(); });
     Editor.canvas.on('object:removed', markDirty);
   }
 
@@ -226,6 +289,10 @@
     Editor.fit();
     History.init(canvas);
     Props.init(document.getElementById('propsPanel'), canvas);
+
+    PagesUI.init(document.getElementById('pagesBar'));
+    Pages.init(canvas, () => { PagesUI.render(); syncSizeInputs(); });
+
     BrandUI.init(document.getElementById('brand-menu'), document.getElementById('logoInput'));
     await Brand.init(canvas, () => BrandUI.render());
 
@@ -235,10 +302,16 @@
         if (state.dirty && !confirm('Discard unsaved changes and load template?')) return;
         state.id = null;
         $('projectName').value = tpl.name;
-        $('cw').value = tpl.w;
-        $('ch').value = tpl.h;
-        Editor.resize(tpl.w, tpl.h);
-        await Editor.loadJSON(tpl.canvasJSON);
+        await Pages.load({
+          pages: [{
+            id: 'p-tpl',
+            w: tpl.w,
+            h: tpl.h,
+            canvasJSON: tpl.canvasJSON
+          }],
+          active: 0
+        });
+        syncSizeInputs();
         state.dirty = true;
         setStatus('● from template', 'dirty');
         toggleMenu('templates-menu');
@@ -251,5 +324,6 @@
 
     const last = localStorage.getItem('canvas:lastOpen');
     if (last && Persist.load(last)) await load(last);
+    else PagesUI.render();
   });
 })();
