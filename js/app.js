@@ -164,6 +164,7 @@
     $('brandBtn').onclick = () => { toggleMenu('brand-menu'); BrandUI.render(); };
     $('templatesBtn').onclick = () => { toggleMenu('templates-menu'); TemplatesUI.render(); };
     $('bulkBtn').onclick = () => { toggleMenu('bulk-menu'); BulkUI.render(); };
+    $('aiBtn').onclick = () => { toggleMenu('ai-menu'); AIUI.render(); };
     $('projectName').oninput = markDirty;
 
     $('resizeBtn').onclick = () => {
@@ -276,7 +277,7 @@
     });
 
     document.addEventListener('click', e => {
-      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn') || e.target.closest('#brandBtn') || e.target.closest('#templatesBtn') || e.target.closest('#bulkBtn')) return;
+      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn') || e.target.closest('#brandBtn') || e.target.closest('#templatesBtn') || e.target.closest('#bulkBtn') || e.target.closest('#aiBtn')) return;
       document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
     });
 
@@ -321,6 +322,10 @@
     await Templates.init();
 
     BulkUI.init(document.getElementById('bulk-menu'), document.getElementById('csvInput'), {
+      getCanvas: () => Editor.canvas
+    });
+
+    AIUI.init(document.getElementById('ai-menu'), {
       getCanvas: () => Editor.canvas
     });
 

@@ -1,5 +1,7 @@
 .planning/
 .DS_Store
 node_modules/
+server/node_modules/
 server/.env
+server/package-lock.json
 *.log

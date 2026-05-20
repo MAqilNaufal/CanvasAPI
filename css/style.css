@@ -115,3 +115,10 @@ footer{grid-area:footer;background:#16213e;border-top:1px solid #0f3460;padding:
 .bulk-status{margin-top:8px;font-size:12px;opacity:.7}
 .bulk-status.ok{color:#7be07b;opacity:1}
 .bulk-status.err{color:#e94560;opacity:1}
+
+/* AI drawer */
+.ai-drawer{min-width:380px;max-width:420px}
+.ai-drawer textarea{flex:1;width:100%;min-height:60px;resize:vertical;padding:6px 8px;border-radius:4px;border:1px solid #0f3460;background:#1a1a2e;color:#fff;font-size:12px;font-family:inherit}
+.ai-status{margin-top:6px;font-size:12px;opacity:.7;min-height:16px}
+.ai-status.ok{color:#7be07b;opacity:1}
+.ai-status.err{color:#e94560;opacity:1}
