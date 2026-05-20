@@ -138,6 +138,7 @@
     $('saveBtn').onclick = save;
     $('openBtn').onclick = () => toggleMenu('open-menu');
     $('exportBtn').onclick = () => toggleMenu('export-menu');
+    $('brandBtn').onclick = () => { toggleMenu('brand-menu'); BrandUI.render(); };
     $('projectName').oninput = markDirty;
 
     $('resizeBtn').onclick = () => {
@@ -210,7 +211,7 @@
     });
 
     document.addEventListener('click', e => {
-      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn')) return;
+      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn') || e.target.closest('#brandBtn')) return;
       document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
     });
 
@@ -224,6 +225,8 @@
     Editor.fit();
     History.init(canvas);
     Props.init(document.getElementById('propsPanel'), canvas);
+    BrandUI.init(document.getElementById('brand-menu'), document.getElementById('logoInput'));
+    await Brand.init(canvas, () => BrandUI.render());
     bindUI();
     bindKeys();
 

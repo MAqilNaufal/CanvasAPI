@@ -1,0 +1,22 @@
+{
+  "id": "default",
+  "name": "Default",
+  "colors": [
+    "#0f3460",
+    "#16213e",
+    "#e94560",
+    "#22264a",
+    "#ffffff",
+    "#1a1a2e",
+    "#7be07b",
+    "#ffb454",
+    "#5b8def",
+    "#222222"
+  ],
+  "fonts": {
+    "heading": "Inter",
+    "body": "Inter"
+  },
+  "logos": [],
+  "builtin": true
+}

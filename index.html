@@ -47,8 +47,12 @@
     <button id="down" title="Send back">↓</button>
     <button id="undo" title="Undo (Cmd/Ctrl+Z)">⤺</button>
     <button id="redo" title="Redo (Cmd/Ctrl+Shift+Z)">⤻</button>
+    <button id="brandBtn">Brand ▾</button>
     <button id="exportBtn">Export ▾</button>
   </div>
+
+  <div id="brand-menu" class="menu wide drawer"></div>
+  <input type="file" id="logoInput" accept="image/*" hidden>
 
   <div id="export-menu" class="menu">
     <button data-export="png">Export PNG</button>
@@ -80,6 +84,8 @@
 <script src="js/persist.js"></script>
 <script src="js/export.js"></script>
 <script src="js/props.js"></script>
+<script src="js/brand.js"></script>
+<script src="js/brandUI.js"></script>
 <script src="js/editor.js"></script>
 <script src="js/app.js"></script>
 </body>

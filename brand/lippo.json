@@ -1,0 +1,20 @@
+{
+  "id": "lippo",
+  "name": "Lippo Land",
+  "colors": [
+    "#003F87",
+    "#E30613",
+    "#F4F4F4",
+    "#1A1A1A",
+    "#FFFFFF",
+    "#888888",
+    "#C8A45A",
+    "#0066B3"
+  ],
+  "fonts": {
+    "heading": "Inter",
+    "body": "Inter"
+  },
+  "logos": [],
+  "builtin": true
+}
