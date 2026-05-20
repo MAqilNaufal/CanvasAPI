@@ -4,123 +4,83 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Canvas Editor</title>
+<link rel="stylesheet" href="css/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#16213e;border-bottom:1px solid #0f3460}
-header h1{font-size:16px;font-weight:600;margin-right:auto}
-.toolbar{display:flex;gap:6px}
-.toolbar button,.toolbar label{padding:6px 12px;border:none;border-radius:6px;background:#0f3460;color:#fff;font-size:13px;cursor:pointer;transition:background .15s}
-.toolbar button:hover,.toolbar label:hover{background:#e94560}
-.toolbar input[type=file]{display:none}
-.toolbar select{padding:6px 8px;border-radius:6px;border:none;background:#0f3460;color:#fff;font-size:13px}
-main{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px}
-.canvas-wrap{background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4);position:relative}
-#export-menu{position:absolute;top:46px;right:16px;background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:8px;display:none;z-index:10;flex-direction:column;gap:4px}
-#export-menu.show{display:flex}
-#export-menu button{text-align:left}
-.size-inputs{display:flex;align-items:center;gap:6px}
-.size-inputs input{width:60px;padding:4px 6px;border-radius:4px;border:1px solid #0f3460;background:#1a1a2e;color:#fff;font-size:13px;text-align:center}
-.size-inputs span{font-size:12px;opacity:.7}
-</style>
 </head>
 <body>
 <header>
-<h1>Canvas Editor</h1>
-<div class="size-inputs">
-<input id="cw" type="number" value="1080" min="100" max="4096">
-<span>×</span>
-<input id="ch" type="number" value="1080" min="100" max="4096">
-<button onclick="resizeCanvas()" style="padding:4px 8px;border:none;border-radius:4px;background:#0f3460;color:#fff;cursor:pointer;font-size:12px">Apply</button>
-</div>
-<div class="toolbar">
-<label>+ Image<input type="file" id="imgInput" accept="image/*" multiple></label>
-<button onclick="addText()">+ Text</button>
-<button onclick="addRect()">+ Rect</button>
-<button onclick="addCircle()">+ Circle</button>
-<button onclick="deleteSelected()">Delete</button>
-<button onclick="bringForward()">↑</button>
-<button onclick="sendBackward()">↓</button>
-<button onclick="toggleExport()">Export ▾</button>
-</div>
-<div id="export-menu">
-<button onclick="exportWebP()">Export WebP</button>
-<button onclick="exportSVG()">Export SVG</button>
-</div>
+  <h1>Canvas</h1>
+
+  <div class="project-bar">
+    <input id="projectName" type="text" placeholder="Untitled" autocomplete="off">
+    <button id="newBtn" title="New project">+ New</button>
+    <button id="openBtn" title="Open project">Open ▾</button>
+    <button id="saveBtn" title="Save (Cmd/Ctrl+S)">Save</button>
+    <span id="saveStatus" class="status"></span>
+  </div>
+
+  <div class="size-inputs">
+    <input id="cw" type="number" value="1080" min="100" max="8192">
+    <span>×</span>
+    <input id="ch" type="number" value="1080" min="100" max="8192">
+    <button id="resizeBtn">Apply</button>
+    <select id="presetSize" title="Size preset">
+      <option value="">Preset…</option>
+      <option value="1080x1080">IG Post 1:1</option>
+      <option value="1080x1350">IG Portrait 4:5</option>
+      <option value="1080x1920">Story 9:16</option>
+      <option value="1200x630">OG / FB 1.91:1</option>
+      <option value="1600x900">YouTube Thumb</option>
+      <option value="2480x3508">A4 300dpi</option>
+      <option value="3508x2480">A4 Landscape</option>
+    </select>
+  </div>
+
+  <div class="toolbar">
+    <label class="btn">+ Image<input type="file" id="imgInput" accept="image/*" multiple hidden></label>
+    <button id="addText">+ Text</button>
+    <button id="addRect">+ Rect</button>
+    <button id="addCircle">+ Circle</button>
+    <button id="addLine">+ Line</button>
+    <button id="del" title="Delete (Del)">🗑</button>
+    <button id="up" title="Bring forward">↑</button>
+    <button id="down" title="Send back">↓</button>
+    <button id="undo" title="Undo (Cmd/Ctrl+Z)">⤺</button>
+    <button id="redo" title="Redo (Cmd/Ctrl+Shift+Z)">⤻</button>
+    <button id="exportBtn">Export ▾</button>
+  </div>
+
+  <div id="export-menu" class="menu">
+    <button data-export="png">Export PNG</button>
+    <button data-export="webp">Export WebP</button>
+    <button data-export="svg">Export SVG</button>
+    <button data-export="json">Export JSON</button>
+  </div>
+
+  <div id="open-menu" class="menu wide">
+    <div class="menu-head">Projects</div>
+    <ul id="projectList"></ul>
+    <div class="menu-foot">
+      <label class="btn small">Import JSON<input type="file" id="importInput" accept="application/json" hidden></label>
+    </div>
+  </div>
 </header>
+
+<aside id="propsPanel" class="props">
+  <div class="empty">Select an object</div>
+</aside>
+
 <main>
-<div class="canvas-wrap">
-<canvas id="c"></canvas>
-</div>
+  <div class="canvas-wrap">
+    <canvas id="c" width="1080" height="1080"></canvas>
+  </div>
 </main>
-<script>
-const canvas = new fabric.Canvas('c',{width:1080,height:1080,backgroundColor:'#ffffff',preserveObjectStacking:true});
 
-function resizeCanvas(){
-  const w=Math.min(4096,Math.max(100,+document.getElementById('cw').value||1080));
-  const h=Math.min(4096,Math.max(100,+document.getElementById('ch').value||1080));
-  canvas.setDimensions({width:w,height:h});
-  canvas.renderAll();
-}
-
-document.getElementById('imgInput').addEventListener('change',e=>{
-  [...e.target.files].forEach(file=>{
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      fabric.Image.fromURL(ev.target.result,img=>{
-        const scale=Math.min((canvas.width*.8)/img.width,(canvas.height*.8)/img.height,1);
-        img.set({scaleX:scale,scaleY:scale,left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center'});
-        canvas.add(img);
-        canvas.setActiveObject(img);
-        canvas.renderAll();
-      });
-    };
-    reader.readAsDataURL(file);
-  });
-  e.target.value='';
-});
-
-function addText(){
-  const t=new fabric.IText('Double-click to edit',{left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center',fontSize:48,fontFamily:'system-ui',fill:'#333333'});
-  canvas.add(t);canvas.setActiveObject(t);canvas.renderAll();
-}
-function addRect(){
-  const r=new fabric.Rect({left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center',width:200,height:150,fill:'#e94560',rx:8,ry:8});
-  canvas.add(r);canvas.setActiveObject(r);canvas.renderAll();
-}
-function addCircle(){
-  const c2=new fabric.Circle({left:canvas.width/2,top:canvas.height/2,originX:'center',originY:'center',radius:80,fill:'#0f3460'});
-  canvas.add(c2);canvas.setActiveObject(c2);canvas.renderAll();
-}
-function deleteSelected(){
-  const sel=canvas.getActiveObjects();
-  sel.forEach(o=>canvas.remove(o));
-  canvas.discardActiveObject();canvas.renderAll();
-}
-function bringForward(){const o=canvas.getActiveObject();if(o){canvas.bringForward(o);canvas.renderAll();}}
-function sendBackward(){const o=canvas.getActiveObject();if(o){canvas.sendBackwards(o);canvas.renderAll();}}
-
-function toggleExport(){document.getElementById('export-menu').classList.toggle('show');}
-document.addEventListener('click',e=>{if(!e.target.closest('#export-menu')&&!e.target.closest('[onclick*=toggleExport]'))document.getElementById('export-menu').classList.remove('show');});
-
-function exportWebP(){
-  const url=canvas.toDataURL({format:'webp',quality:0.92,multiplier:1});
-  const a=document.createElement('a');a.href=url;a.download='design.webp';a.click();
-  document.getElementById('export-menu').classList.remove('show');
-}
-function exportSVG(){
-  const svg=canvas.toSVG();
-  const blob=new Blob([svg],{type:'image/svg+xml'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='design.svg';a.click();
-  document.getElementById('export-menu').classList.remove('show');
-}
-
-// Keyboard shortcuts
-document.addEventListener('keydown',e=>{
-  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
-  if(e.key==='Delete'||e.key==='Backspace')deleteSelected();
-});
-</script>
+<script src="js/history.js"></script>
+<script src="js/persist.js"></script>
+<script src="js/export.js"></script>
+<script src="js/props.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

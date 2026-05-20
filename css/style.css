@@ -1,0 +1,49 @@
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#fff;height:100vh;display:grid;grid-template-rows:auto 1fr;grid-template-columns:1fr 280px;grid-template-areas:"header header" "main props";overflow:hidden}
+header{grid-area:header;display:flex;align-items:center;gap:12px;padding:10px 16px;background:#16213e;border-bottom:1px solid #0f3460;flex-wrap:wrap;position:relative;z-index:5}
+header h1{font-size:16px;font-weight:600;margin-right:8px}
+main{grid-area:main;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px;background:radial-gradient(circle at center,#22264a 0,#1a1a2e 70%)}
+.canvas-wrap{background:#fff;box-shadow:0 6px 32px rgba(0,0,0,.5)}
+
+.project-bar,.size-inputs,.toolbar{display:flex;align-items:center;gap:6px}
+.project-bar{margin-right:auto}
+.project-bar input[type=text]{padding:6px 10px;border-radius:6px;border:1px solid #0f3460;background:#1a1a2e;color:#fff;font-size:13px;width:180px}
+
+button,.btn,select{padding:6px 12px;border:none;border-radius:6px;background:#0f3460;color:#fff;font-size:13px;cursor:pointer;transition:background .15s;font-family:inherit}
+button:hover,.btn:hover,select:hover{background:#1e4a8a}
+button.danger:hover{background:#e94560}
+
+.toolbar button#del:hover{background:#e94560}
+.size-inputs input{width:64px;padding:4px 6px;border-radius:4px;border:1px solid #0f3460;background:#1a1a2e;color:#fff;font-size:13px;text-align:center}
+.size-inputs span{font-size:12px;opacity:.7}
+.status{font-size:11px;opacity:.6;min-width:60px}
+.status.ok{color:#7be07b;opacity:1}
+.status.dirty{color:#ffb454;opacity:1}
+
+.menu{position:absolute;top:60px;background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:6px;display:none;z-index:20;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.4);min-width:180px}
+.menu.show{display:flex}
+.menu.wide{min-width:280px}
+.menu button{text-align:left;background:transparent;padding:6px 10px}
+.menu button:hover{background:#0f3460}
+#export-menu{right:16px}
+#open-menu{left:300px}
+.menu-head{font-size:11px;text-transform:uppercase;opacity:.6;padding:4px 8px;letter-spacing:.5px}
+.menu-foot{border-top:1px solid #0f3460;padding-top:6px;margin-top:4px;display:flex;justify-content:flex-end}
+.menu ul{list-style:none;max-height:300px;overflow-y:auto}
+.menu li{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:13px}
+.menu li:hover{background:#0f3460}
+.menu li .meta{font-size:10px;opacity:.5;margin-left:auto}
+.menu li .del{padding:2px 6px;font-size:11px;background:transparent;opacity:.5}
+.menu li .del:hover{background:#e94560;opacity:1}
+.btn.small{padding:4px 8px;font-size:11px}
+
+.props{grid-area:props;background:#16213e;border-left:1px solid #0f3460;padding:16px;overflow-y:auto;font-size:13px}
+.props .empty{opacity:.4;text-align:center;padding:40px 0;font-size:12px}
+.props h3{font-size:11px;text-transform:uppercase;opacity:.6;margin-bottom:8px;letter-spacing:.5px}
+.props .row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.props label{font-size:11px;opacity:.7;flex:1}
+.props input[type=text],.props input[type=number],.props select,.props textarea{flex:2;padding:4px 8px;border-radius:4px;border:1px solid #0f3460;background:#1a1a2e;color:#fff;font-size:12px;font-family:inherit}
+.props input[type=color]{width:40px;height:28px;padding:0;border:1px solid #0f3460;background:#1a1a2e;border-radius:4px;cursor:pointer}
+.props textarea{min-height:60px;resize:vertical}
+.props .group{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #0f3460}
+.props .group:last-child{border-bottom:none}
