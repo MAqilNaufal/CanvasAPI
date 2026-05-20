@@ -163,6 +163,7 @@
     $('exportBtn').onclick = () => toggleMenu('export-menu');
     $('brandBtn').onclick = () => { toggleMenu('brand-menu'); BrandUI.render(); };
     $('templatesBtn').onclick = () => { toggleMenu('templates-menu'); TemplatesUI.render(); };
+    $('bulkBtn').onclick = () => { toggleMenu('bulk-menu'); BulkUI.render(); };
     $('projectName').oninput = markDirty;
 
     $('resizeBtn').onclick = () => {
@@ -275,7 +276,7 @@
     });
 
     document.addEventListener('click', e => {
-      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn') || e.target.closest('#brandBtn') || e.target.closest('#templatesBtn')) return;
+      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn') || e.target.closest('#brandBtn') || e.target.closest('#templatesBtn') || e.target.closest('#bulkBtn')) return;
       document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
     });
 
@@ -318,6 +319,10 @@
       }
     });
     await Templates.init();
+
+    BulkUI.init(document.getElementById('bulk-menu'), document.getElementById('csvInput'), {
+      getCanvas: () => Editor.canvas
+    });
 
     bindUI();
     bindKeys();

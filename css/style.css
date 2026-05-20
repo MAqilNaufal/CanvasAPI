@@ -101,3 +101,17 @@ footer{grid-area:footer;background:#16213e;border-top:1px solid #0f3460;padding:
 .page-tab:hover .del{opacity:1}
 .page-add,.page-dup{width:36px;height:36px;padding:0;font-size:16px;border-radius:6px;background:#0f3460;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .page-info{font-size:11px;opacity:.6;white-space:nowrap}
+
+/* Bulk drawer */
+.bulk-drawer{min-width:440px;max-width:480px}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:4px;padding:4px}
+.tag{display:inline-block;padding:3px 8px;border-radius:4px;background:#0f3460;font-size:11px;cursor:pointer;border:1px solid transparent}
+.tag.ok{border-color:#7be07b;color:#7be07b}
+.tag.miss{border-color:#e94560;color:#e94560}
+.preview-table{width:100%;font-size:11px;margin-top:4px}
+.preview-table td{padding:3px 6px;border-bottom:1px solid #0f3460;vertical-align:top}
+.preview-table td.k{opacity:.6;width:35%;white-space:nowrap}
+.preview-table td.v{font-family:'Courier New',monospace}
+.bulk-status{margin-top:8px;font-size:12px;opacity:.7}
+.bulk-status.ok{color:#7be07b;opacity:1}
+.bulk-status.err{color:#e94560;opacity:1}

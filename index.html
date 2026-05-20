@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="css/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 <header>
@@ -50,11 +52,14 @@
     <button id="redo" title="Redo (Cmd/Ctrl+Shift+Z)">⤻</button>
     <button id="templatesBtn">Templates ▾</button>
     <button id="brandBtn">Brand ▾</button>
+    <button id="bulkBtn">Bulk ▾</button>
     <button id="exportBtn">Export ▾</button>
   </div>
 
   <div id="brand-menu" class="menu wide drawer"></div>
   <div id="templates-menu" class="menu wide drawer tpl-drawer"></div>
+  <div id="bulk-menu" class="menu wide drawer bulk-drawer"></div>
+  <input type="file" id="csvInput" accept=".csv,text/csv" hidden>
   <input type="file" id="logoInput" accept="image/*" hidden>
 
   <div id="export-menu" class="menu">
@@ -98,6 +103,8 @@
 <script src="js/pages.js"></script>
 <script src="js/pagesUI.js"></script>
 <script src="js/pdf.js"></script>
+<script src="js/bulk.js"></script>
+<script src="js/bulkUI.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
