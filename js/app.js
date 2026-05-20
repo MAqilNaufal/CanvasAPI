@@ -139,6 +139,7 @@
     $('openBtn').onclick = () => toggleMenu('open-menu');
     $('exportBtn').onclick = () => toggleMenu('export-menu');
     $('brandBtn').onclick = () => { toggleMenu('brand-menu'); BrandUI.render(); };
+    $('templatesBtn').onclick = () => { toggleMenu('templates-menu'); TemplatesUI.render(); };
     $('projectName').oninput = markDirty;
 
     $('resizeBtn').onclick = () => {
@@ -211,7 +212,7 @@
     });
 
     document.addEventListener('click', e => {
-      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn') || e.target.closest('#brandBtn')) return;
+      if (e.target.closest('.menu') || e.target.closest('#openBtn') || e.target.closest('#exportBtn') || e.target.closest('#brandBtn') || e.target.closest('#templatesBtn')) return;
       document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
     });
 
@@ -227,6 +228,24 @@
     Props.init(document.getElementById('propsPanel'), canvas);
     BrandUI.init(document.getElementById('brand-menu'), document.getElementById('logoInput'));
     await Brand.init(canvas, () => BrandUI.render());
+
+    TemplatesUI.init(document.getElementById('templates-menu'), {
+      getCanvas: () => Editor.canvas,
+      onLoad: async tpl => {
+        if (state.dirty && !confirm('Discard unsaved changes and load template?')) return;
+        state.id = null;
+        $('projectName').value = tpl.name;
+        $('cw').value = tpl.w;
+        $('ch').value = tpl.h;
+        Editor.resize(tpl.w, tpl.h);
+        await Editor.loadJSON(tpl.canvasJSON);
+        state.dirty = true;
+        setStatus('● from template', 'dirty');
+        toggleMenu('templates-menu');
+      }
+    });
+    await Templates.init();
+
     bindUI();
     bindKeys();
 

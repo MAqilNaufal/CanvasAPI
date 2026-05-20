@@ -1,0 +1,56 @@
+{
+  "id": "a4-doc-cover",
+  "name": "A4 Doc Cover",
+  "tags": ["a4", "doc", "report"],
+  "w": 2480,
+  "h": 3508,
+  "builtin": true,
+  "thumbnail": null,
+  "canvasJSON": {
+    "version": "5.3.1",
+    "background": "#FFFFFF",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 0,
+        "top": 0,
+        "width": 2480,
+        "height": 800,
+        "fill": "#003F87"
+      },
+      {
+        "type": "textbox",
+        "left": 200,
+        "top": 240,
+        "width": 2080,
+        "fontSize": 56,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "text": "QUARTERLY REPORT",
+        "letterSpacing": 200
+      },
+      {
+        "type": "textbox",
+        "left": 200,
+        "top": 360,
+        "width": 2080,
+        "fontSize": 180,
+        "fontWeight": 800,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "text": "Project Title",
+        "lineHeight": 1.05
+      },
+      {
+        "type": "textbox",
+        "left": 200,
+        "top": 2900,
+        "width": 2080,
+        "fontSize": 36,
+        "fontFamily": "Inter",
+        "fill": "#444",
+        "text": "Prepared by Your Name · 2026"
+      }
+    ]
+  }
+}

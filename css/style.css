@@ -73,3 +73,17 @@ button.danger:hover{background:#e94560}
 .logo-slot.add{border-style:dashed;color:rgba(255,255,255,.5);font-size:11px}
 
 .menu .hint{font-size:11px;opacity:.5;padding:8px 4px;font-style:italic}
+
+/* Templates drawer */
+.tpl-drawer{min-width:520px;max-width:560px}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px}
+.tpl-card{position:relative;background:#1a1a2e;border:1px solid #0f3460;border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .1s}
+.tpl-card:hover{border-color:#e94560;transform:translateY(-1px)}
+.tpl-thumb{width:100%;background:#0f3460;display:flex;align-items:center;justify-content:center;min-height:80px}
+.tpl-placeholder{font-size:10px;opacity:.6;color:#fff;text-align:center}
+.tpl-meta{padding:6px 8px}
+.tpl-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpl-size{font-size:10px;opacity:.5;margin-top:2px}
+.tpl-card .del{position:absolute;top:4px;right:4px;width:20px;height:20px;padding:0;font-size:12px;background:rgba(0,0,0,.65);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.tpl-card:hover .del{opacity:1}
+.tpl-card .del:hover{background:#e94560}

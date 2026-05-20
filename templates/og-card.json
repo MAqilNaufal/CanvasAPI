@@ -1,0 +1,56 @@
+{
+  "id": "og-card",
+  "name": "OG / Social Card",
+  "tags": ["og", "social", "facebook", "twitter"],
+  "w": 1200,
+  "h": 630,
+  "builtin": true,
+  "thumbnail": null,
+  "canvasJSON": {
+    "version": "5.3.1",
+    "background": "#1A1A2E",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 0,
+        "top": 0,
+        "width": 12,
+        "height": 630,
+        "fill": "#E94560"
+      },
+      {
+        "type": "textbox",
+        "left": 60,
+        "top": 80,
+        "width": 1080,
+        "fontSize": 28,
+        "fontFamily": "Inter",
+        "fill": "#7BE07B",
+        "text": "yourbrand.com",
+        "letterSpacing": 100
+      },
+      {
+        "type": "textbox",
+        "left": 60,
+        "top": 160,
+        "width": 1080,
+        "fontSize": 72,
+        "fontWeight": 700,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "text": "Article title goes here in two lines",
+        "lineHeight": 1.1
+      },
+      {
+        "type": "textbox",
+        "left": 60,
+        "top": 520,
+        "width": 1080,
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#888",
+        "text": "by Author · 5 min read"
+      }
+    ]
+  }
+}
