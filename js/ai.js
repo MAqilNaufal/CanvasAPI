@@ -16,16 +16,6 @@ const AI = (() => {
     } catch { return { ok: false }; }
   }
 
-  async function bgRemove(dataUrl) {
-    const r = await fetch(apiBase() + '/api/bg-remove?format=dataUrl', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ dataUrl })
-    });
-    if (!r.ok) throw new Error((await r.json()).error || 'bg-remove failed');
-    return (await r.json()).dataUrl;
-  }
-
   async function textToImage(prompt, aspect) {
     const r = await fetch(apiBase() + '/api/text-to-image', {
       method: 'POST',
@@ -36,5 +26,5 @@ const AI = (() => {
     return (await r.json()).dataUrl;
   }
 
-  return { health, bgRemove, textToImage, apiBase };
+  return { health, textToImage, apiBase };
 })();

@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import bgRemove from './routes/bg-remove.mjs';
 import textToImage from './routes/text-to-image.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,12 +26,12 @@ app.use(express.json({ limit: '25mb' }));
 app.get('/api/health', (_req, res) => {
   res.json({
     ok: true,
-    rembg: !!process.env.REMBG_PYTHON && fs.existsSync(process.env.REMBG_PYTHON),
-    gemini: !!process.env.GEMINI_API_KEY
+    gemini: !!process.env.GEMINI_API_KEY,
+    pollinations: true,
+    t2i: true,
   });
 });
 
-app.use('/api/bg-remove', bgRemove);
 app.use('/api/text-to-image', textToImage);
 
 app.use((err, _req, res, _next) => {

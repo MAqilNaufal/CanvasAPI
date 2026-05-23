@@ -1,4 +1,4 @@
-// AI drawer: remove bg of selected image, generate image from prompt.
+// AI drawer: generate image from prompt.
 const AIUI = (() => {
   let drawer = null;
   let getCanvas = null;
@@ -19,18 +19,6 @@ const AIUI = (() => {
     return (o && o.type === 'image') ? o : null;
   }
 
-  function imageToDataURL(img) {
-    const el = img._element || img.getElement?.();
-    if (!el) return null;
-    const c = document.createElement('canvas');
-    c.width = el.naturalWidth || el.width;
-    c.height = el.naturalHeight || el.height;
-    const ctx = c.getContext('2d');
-    ctx.drawImage(el, 0, 0);
-    try { return c.toDataURL('image/png'); }
-    catch { return null; }
-  }
-
   function placeImageOnCanvas(dataUrl) {
     const canvas = getCanvas();
     fabric.Image.fromURL(dataUrl, img => {
@@ -45,22 +33,6 @@ const AIUI = (() => {
     });
   }
 
-  function replaceImage(oldImg, dataUrl) {
-    const canvas = getCanvas();
-    fabric.Image.fromURL(dataUrl, img => {
-      img.set({
-        left: oldImg.left,
-        top: oldImg.top,
-        scaleX: (oldImg.width * oldImg.scaleX) / img.width,
-        scaleY: (oldImg.height * oldImg.scaleY) / img.height,
-        angle: oldImg.angle,
-        opacity: oldImg.opacity
-      });
-      canvas.remove(oldImg);
-      canvas.add(img).setActiveObject(img);
-    });
-  }
-
   async function render() {
     if (!drawer) return;
     drawer.innerHTML = '';
@@ -69,38 +41,10 @@ const AIUI = (() => {
     const health = await AI.health();
     const hStat = el('div', { class: 'hint' }, [
       health.ok
-        ? `Server up · rembg ${health.rembg ? '✓' : '✗'} · gemini ${health.gemini ? '✓' : '✗'}`
+        ? `Server up · t2i ${health.t2i || health.pollinations || health.gemini ? '✓ (pollinations' + (health.gemini ? '+gemini' : '') + ')' : '✗'}`
         : 'Server not reachable. Start with: cd server && npm start'
     ]);
     drawer.appendChild(hStat);
-
-    // Bg-remove section
-    drawer.appendChild(el('h3', {}, ['Remove background']));
-    const bgStatus = el('div', { class: 'ai-status' }, ['']);
-    const bgBtn = el('button', {}, ['Remove bg of selected image']);
-    bgBtn.onclick = async () => {
-      const sel = selectedImage();
-      if (!sel) { bgStatus.textContent = 'Select an image first'; bgStatus.className = 'ai-status err'; return; }
-      if (!health.rembg) { bgStatus.textContent = 'rembg not available on server'; bgStatus.className = 'ai-status err'; return; }
-      const inUrl = imageToDataURL(sel);
-      if (!inUrl) { bgStatus.textContent = 'Could not read image (CORS?)'; bgStatus.className = 'ai-status err'; return; }
-      bgBtn.disabled = true;
-      bgStatus.textContent = 'Removing bg…';
-      bgStatus.className = 'ai-status';
-      try {
-        const out = await AI.bgRemove(inUrl);
-        replaceImage(sel, out);
-        bgStatus.textContent = '✓ Done';
-        bgStatus.className = 'ai-status ok';
-      } catch (e) {
-        bgStatus.textContent = 'Error: ' + e.message;
-        bgStatus.className = 'ai-status err';
-      } finally {
-        bgBtn.disabled = false;
-      }
-    };
-    drawer.appendChild(bgBtn);
-    drawer.appendChild(bgStatus);
 
     // Text-to-image section
     drawer.appendChild(el('h3', {}, ['Generate image']));
@@ -117,7 +61,7 @@ const AIUI = (() => {
     const genBtn = el('button', {}, ['Generate']);
     genBtn.onclick = async () => {
       if (!prompt.value.trim()) return;
-      if (!health.gemini) { t2iStatus.textContent = 'GEMINI_API_KEY not set on server'; t2iStatus.className = 'ai-status err'; return; }
+      if (!health.t2i && !health.pollinations && !health.gemini) { t2iStatus.textContent = 'No t2i provider available on server'; t2iStatus.className = 'ai-status err'; return; }
       genBtn.disabled = true;
       t2iStatus.textContent = 'Generating…';
       t2iStatus.className = 'ai-status';
